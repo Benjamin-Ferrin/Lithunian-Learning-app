@@ -1,22 +1,26 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { saveWord } from '@/lib/storage';
 import { toast } from 'sonner';
+import { useLocale } from '@/lib/LocaleContext';
+import { useLearningLanguage } from '@/lib/LearningLanguageContext';
+import StudyLanguageHeader from '@/components/StudyLanguageHeader';
 
 export default function AddWord() {
+  const { t } = useLocale();
+  const { studyLanguage, addExamples } = useLearningLanguage();
   const [lithuanian, setLithuanian] = useState('');
   const [english, setEnglish] = useState('');
   const [saved, setSaved] = useState(false);
-  const navigate = useNavigate();
 
   const handleSave = () => {
     if (!lithuanian.trim() || !english.trim()) return;
-    saveWord(lithuanian, english);
+    saveWord(lithuanian, english, studyLanguage);
     setSaved(true);
-    toast.success('Word added!');
+    toast.success(t('wordAddedToast'));
     setTimeout(() => {
       setLithuanian('');
       setEnglish('');
@@ -28,6 +32,8 @@ export default function AddWord() {
 
   return (
     <div className="min-h-screen bg-background px-6 pb-10 pt-6 flex flex-col max-w-lg mx-auto">
+      <StudyLanguageHeader className="mb-5" />
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-10">
         <Link
@@ -36,7 +42,7 @@ export default function AddWord() {
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-xl font-bold text-foreground">Add Word</h1>
+        <h1 className="text-xl font-bold text-foreground">{t('addWordTitle')}</h1>
       </div>
 
       {/* Form */}
@@ -47,12 +53,12 @@ export default function AddWord() {
       >
         <div>
           <label className="text-sm font-medium text-muted-foreground mb-2 block">
-            Lithuanian
+            {t('labelStudyTarget', studyLanguage)}
           </label>
           <Input
             value={lithuanian}
             onChange={(e) => setLithuanian(e.target.value)}
-            placeholder="e.g. Ačiū"
+            placeholder={`e.g. ${addExamples.target}`}
             className="h-14 text-lg rounded-xl bg-card border-border px-4"
             autoFocus
           />
@@ -60,12 +66,12 @@ export default function AddWord() {
 
         <div>
           <label className="text-sm font-medium text-muted-foreground mb-2 block">
-            English
+            {t('labelWordDefinition')}
           </label>
           <Input
             value={english}
             onChange={(e) => setEnglish(e.target.value)}
-            placeholder="e.g. Thank you"
+            placeholder={t('addWordDefinitionPlaceholder')}
             className="h-14 text-lg rounded-xl bg-card border-border px-4"
             onKeyDown={(e) => e.key === 'Enter' && canSave && handleSave()}
           />
@@ -87,10 +93,10 @@ export default function AddWord() {
               animate={{ scale: 1 }}
               className="flex items-center justify-center gap-2"
             >
-              <Check className="w-5 h-5" /> Saved!
+              <Check className="w-5 h-5" /> {t('saved')}
             </motion.span>
           ) : (
-            'Save Word'
+            t('saveWord')
           )}
         </motion.button>
       </motion.div>
@@ -98,7 +104,7 @@ export default function AddWord() {
       {/* Tip */}
       <div className="mt-auto pt-10 text-center">
         <p className="text-xs text-muted-foreground/60">
-          Tip: Add 3-5 new words per day for best results
+          {t('tipAddWords')}
         </p>
       </div>
     </div>
