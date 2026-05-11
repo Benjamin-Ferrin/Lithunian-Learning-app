@@ -1,39 +1,34 @@
-**Welcome to your Base44 project** 
+# Getting Started
 
-**About**
+## What is this app?
+A streak-based flashcard learning app designed to help you consistently learn Lithuanian through short daily practice sessions.
 
-View and Edit  your app on [db.com](http://db.com) 
+The app is built with **React (web version)** and **Gradle (Android version)**, so you can use it either in your browser or install it on your Android device.
 
-This project contains everything you need to run your app locally.
+---
 
-**Edit the code in your local development environment**
+## Access Options
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+### Web Version
+You can run the app directly in your browser. No installation required.
 
-**Prerequisites:** 
+### Android Version
+Install the APK on your phone to use the native Android app.
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+---
 
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
+## Installation Steps (Android)
 
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.db.app
-```
+1. Download the APK file to your phone.
+2. Open the downloaded file (usually in your **Downloads** folder).
+3. If prompted, enable **Install from unknown sources** in your device settings.
+4. Tap **Install** and wait for it to complete.
+5. Open the app and add a few words
+6. Start your first flashcard session and begin building your streak.
 
-Run the app: `npm run dev`
+---
 
-**Publish your changes**
-
-Open [db.com](http://db.com) and click on Publish.
-
-**Docs & Support**
-
-Documentation: [https://docs.db.com/Integrations/Using-GitHub](https://docs.db.com/Integrations/Using-GitHub)
-
-Support: [https://app.db.com/support](https://app.db.com/support)
+## Notes
+- The web version runs in modern browsers.
+- The Android version requires APK installation because it is not distributed via the Play Store.
+- Make sure you trust the source before installing any APK.

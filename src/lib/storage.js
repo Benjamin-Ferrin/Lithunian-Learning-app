@@ -20,7 +20,9 @@ function recordActiveDay() {
   if (lastActive) {
     const lastDate = new Date(lastActive);
     const todayDate = new Date(today);
-    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor(
+      (todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
     if (diffDays === 1) {
       streak += 1;
