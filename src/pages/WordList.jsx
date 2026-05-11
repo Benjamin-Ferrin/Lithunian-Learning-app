@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Trash2 } from 'lucide-react';
-import { getWords, deleteWord } from '@/lib/storage';
+import { getWordsForStudyLanguage, deleteWord } from '@/lib/storage';
+import { useLocale } from '@/lib/LocaleContext';
+import { useLearningLanguage } from '@/lib/LearningLanguageContext';
+import StudyLanguageHeader from '@/components/StudyLanguageHeader';
 
-const levelLabels = ['New', 'Learning', 'Learning', 'Familiar', 'Known', 'Mastered'];
-const levelColors = [
+const knowTierColors = [
   'bg-muted text-muted-foreground',
   'bg-accent text-accent-foreground',
   'bg-accent text-accent-foreground',
@@ -14,12 +16,22 @@ const levelColors = [
   'bg-primary/20 text-primary',
 ];
 
+function knowTierIndex(k) {
+  const n = k || 0;
+  if (n === 0) return 0;
+  if (n < 3) return 1;
+  if (n < 6) return 3;
+  return 5;
+}
+
 export default function WordList() {
+  const { t } = useLocale();
+  const { studyLanguage } = useLearningLanguage();
   const [words, setWords] = useState([]);
 
   useEffect(() => {
-    setWords(getWords().sort((a, b) => b.id - a.id));
-  }, []);
+    setWords(getWordsForStudyLanguage(studyLanguage).sort((a, b) => b.id - a.id));
+  }, [studyLanguage]);
 
   const handleDelete = (id) => {
     deleteWord(id);
@@ -28,6 +40,8 @@ export default function WordList() {
 
   return (
     <div className="min-h-screen bg-background px-6 pb-10 pt-6 flex flex-col max-w-lg mx-auto">
+      <StudyLanguageHeader className="mb-5" />
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Link
@@ -37,10 +51,10 @@ export default function WordList() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-foreground">My Words</h1>
+          <h1 className="text-xl font-bold text-foreground">{t('myWordsTitle')}</h1>
         </div>
         <span className="text-sm text-muted-foreground font-medium">
-          {words.length} word{words.length !== 1 ? 's' : ''}
+          {t('wordCount', words.length)}
         </span>
       </div>
 
@@ -48,12 +62,12 @@ export default function WordList() {
       {words.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-lg font-medium text-muted-foreground mb-2">No words yet</p>
+            <p className="text-lg font-medium text-muted-foreground mb-2">{t('noWordsYet')}</p>
             <Link
               to="/add"
               className="text-primary font-medium"
             >
-              Add your first word →
+              {t('addFirstWord')}
             </Link>
           </div>
         </div>
@@ -79,10 +93,12 @@ export default function WordList() {
                 </div>
                 <span
                   className={`text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap ${
-                    levelColors[word.level] || levelColors[0]
+                    knowTierColors[knowTierIndex(word.knowCount)] || knowTierColors[0]
                   }`}
                 >
-                  {levelLabels[word.level] || 'New'}
+                  {(word.knowCount || 0) === 0
+                    ? t('wordLevelNew')
+                    : t('knowsBadge', word.knowCount || 0)}
                 </span>
                 <button
                   onClick={() => handleDelete(word.id)}

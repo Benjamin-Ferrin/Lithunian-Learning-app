@@ -5,8 +5,14 @@ import { BookOpen, Plus, Library } from 'lucide-react';
 import StreakCounter from '@/components/StreakCounter';
 import ThemeToggle from '@/components/ThemeToggle';
 import { getStreak, hasReviewedToday, getStats, getReviewWords, initTheme } from '@/lib/storage';
+import { useLocale } from '@/lib/LocaleContext';
+import { useLearningLanguage } from '@/lib/LearningLanguageContext';
+import LanguageButton from '@/components/LanguageButton';
+import StudyLanguageHeader from '@/components/StudyLanguageHeader';
 
 export default function Home() {
+  const { t } = useLocale();
+  const { studyLanguage } = useLearningLanguage();
   const [streak, setStreak] = useState(0);
   const [reviewedToday, setReviewedToday] = useState(false);
   const [stats, setStats] = useState({ totalWords: 0, mastered: 0 });
@@ -16,17 +22,19 @@ export default function Home() {
     initTheme();
     setStreak(getStreak());
     setReviewedToday(hasReviewedToday());
-    setStats(getStats());
-    setDueCount(getReviewWords().length);
-  }, []);
+    setStats(getStats(studyLanguage));
+    setDueCount(getReviewWords(studyLanguage).length);
+  }, [studyLanguage]);
 
   return (
     <div className="min-h-screen bg-background px-6 pb-10 pt-6 flex flex-col max-w-lg mx-auto">
+      <StudyLanguageHeader className="mb-5" />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Labas</h1>
-          <p className="text-sm text-muted-foreground">Lithuanian daily</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('homeTitle')}</h1>
+          <p className="text-sm text-muted-foreground">{t('homeSubtitleLearn', studyLanguage)}</p>
         </div>
         <ThemeToggle />
       </div>
@@ -47,12 +55,8 @@ export default function Home() {
                 <BookOpen className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-lg">Review Words</p>
-                <p className="text-sm opacity-80">
-                  {dueCount > 0
-                    ? `${dueCount} word${dueCount !== 1 ? 's' : ''} due`
-                    : 'All caught up!'}
-                </p>
+                <p className="font-semibold text-lg">{t('reviewWords')}</p>
+                <p className="text-sm opacity-80">{t('wordsDue', dueCount)}</p>
               </div>
             </div>
           </Link>
@@ -69,8 +73,8 @@ export default function Home() {
                 <Plus className="w-6 h-6 text-secondary-foreground" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-lg text-foreground">Add New Word</p>
-                <p className="text-sm text-muted-foreground">Expand your vocabulary</p>
+                <p className="font-semibold text-lg text-foreground">{t('addNewWord')}</p>
+                <p className="text-sm text-muted-foreground">{t('addNewWordHint')}</p>
               </div>
             </div>
           </Link>
@@ -87,9 +91,9 @@ export default function Home() {
                 <Library className="w-6 h-6 text-secondary-foreground" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-lg text-foreground">My Words</p>
+                <p className="font-semibold text-lg text-foreground">{t('myWords')}</p>
                 <p className="text-sm text-muted-foreground">
-                  {stats.totalWords} word{stats.totalWords !== 1 ? 's' : ''} · {stats.mastered} mastered
+                  {t('wordsStats', stats.totalWords, stats.mastered)}
                 </p>
               </div>
             </div>
@@ -97,11 +101,12 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* Bottom subtle info */}
-      <div className="mt-auto pt-8 text-center">
-        <p className="text-xs text-muted-foreground/60">
-          Open daily. Stay consistent.
+      {/* Bottom subtle info + language */}
+      <div className="mt-auto flex w-full flex-col items-end gap-3 pt-8">
+        <p className="w-full text-center text-xs text-muted-foreground/60">
+          {t('openDaily')}
         </p>
+        <LanguageButton />
       </div>
     </div>
   );

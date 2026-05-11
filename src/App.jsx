@@ -9,9 +9,13 @@ import Home from './pages/Home';
 import Review from './pages/Review';
 import AddWord from './pages/AddWord';
 import WordList from './pages/WordList';
+import { LocaleProvider } from '@/lib/LocaleContext';
+import { LearningLanguageProvider, useLearningLanguage } from '@/lib/LearningLanguageContext';
+import StudyLanguageOnboarding from '@/components/StudyLanguageOnboarding';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { onboardingDone } = useLearningLanguage();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -33,6 +37,10 @@ const AuthenticatedApp = () => {
     }
   }
 
+  if (!onboardingDone) {
+    return <StudyLanguageOnboarding />;
+  }
+
   // Render the main app
   return (
     <Routes>
@@ -50,10 +58,14 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
+        <LocaleProvider>
+          <LearningLanguageProvider>
+            <Router>
+              <AuthenticatedApp />
+            </Router>
+            <Toaster />
+          </LearningLanguageProvider>
+        </LocaleProvider>
       </QueryClientProvider>
     </AuthProvider>
   )

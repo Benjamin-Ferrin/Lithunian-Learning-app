@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocale } from '@/lib/LocaleContext';
 
 export default function FlashCard({ word, onCorrect, onIncorrect }) {
+  const { t } = useLocale();
   const [revealed, setRevealed] = useState(false);
 
   const handleReveal = () => {
@@ -26,6 +28,9 @@ export default function FlashCard({ word, onCorrect, onIncorrect }) {
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className="w-full max-w-sm mx-auto"
     >
+      <p className="mb-2 text-center text-xs font-medium text-muted-foreground">
+        {t('cardKnowHint', word.knowCount || 0)}
+      </p>
       {/* Card */}
       <motion.button
         onClick={handleReveal}
@@ -43,7 +48,7 @@ export default function FlashCard({ word, onCorrect, onIncorrect }) {
               <p className="text-3xl font-semibold text-foreground mb-3">
                 {word.lithuanian}
               </p>
-              <p className="text-sm text-muted-foreground">Tap to reveal</p>
+              <p className="text-sm text-muted-foreground">{t('tapReveal')}</p>
             </motion.div>
           ) : (
             <motion.div
@@ -78,13 +83,13 @@ export default function FlashCard({ word, onCorrect, onIncorrect }) {
               onClick={handleIncorrect}
               className="flex-1 py-4 rounded-xl bg-destructive/10 text-destructive font-semibold text-base active:scale-95 transition-transform"
             >
-              Didn't know
+              {t('didntKnow')}
             </button>
             <button
               onClick={handleCorrect}
               className="flex-1 py-4 rounded-xl bg-primary/10 text-primary font-semibold text-base active:scale-95 transition-transform"
             >
-              I knew it
+              {t('knewIt')}
             </button>
           </motion.div>
         )}

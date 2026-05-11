@@ -11,8 +11,13 @@ import {
   getStreak,
   hasReviewedToday,
 } from '@/lib/storage';
+import { useLocale } from '@/lib/LocaleContext';
+import { useLearningLanguage } from '@/lib/LearningLanguageContext';
+import StudyLanguageHeader from '@/components/StudyLanguageHeader';
 
 export default function Review() {
+  const { t } = useLocale();
+  const { studyLanguage } = useLearningLanguage();
   const [words, setWords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sessionDone, setSessionDone] = useState(false);
@@ -22,15 +27,14 @@ export default function Review() {
   const [oldReviewedCount, setOldReviewedCount] = useState(0);
 
   useEffect(() => {
-    const due = getReviewWords();
-    // Shuffle
-    const shuffled = [...due].sort(() => Math.random() - 0.5);
-    setWords(shuffled);
-    setTotal(shuffled.length);
-    if (shuffled.length === 0) {
-      setSessionDone(true);
-    }
-  }, []);
+    const due = getReviewWords(studyLanguage);
+    setWords(due);
+    setTotal(due.length);
+    setCurrentIndex(0);
+    setSessionDone(due.length === 0);
+    setCorrect(0);
+    setOldReviewedCount(0);
+  }, [studyLanguage]);
 
   const maybeRecordStreakForTenOld = (nextOldReviewedCount) => {
     if (nextOldReviewedCount < 10) return;
@@ -53,7 +57,7 @@ export default function Review() {
   const handleCorrect = (id) => {
     markCorrect(id);
     setCorrect(prev => prev + 1);
-    const isOld = words[currentIndex]?.level > 0;
+    const isOld = (words[currentIndex]?.knowCount || 0) > 0;
     const nextOldReviewedCount = oldReviewedCount + (isOld ? 1 : 0);
     setOldReviewedCount(nextOldReviewedCount);
     maybeRecordStreakForTenOld(nextOldReviewedCount);
@@ -62,7 +66,7 @@ export default function Review() {
 
   const handleIncorrect = (id) => {
     markIncorrect(id);
-    const isOld = words[currentIndex]?.level > 0;
+    const isOld = (words[currentIndex]?.knowCount || 0) > 0;
     const nextOldReviewedCount = oldReviewedCount + (isOld ? 1 : 0);
     setOldReviewedCount(nextOldReviewedCount);
     maybeRecordStreakForTenOld(nextOldReviewedCount);
@@ -73,6 +77,8 @@ export default function Review() {
 
   return (
     <div className="min-h-screen bg-background px-6 pb-10 pt-6 flex flex-col max-w-lg mx-auto">
+      <StudyLanguageHeader className="mb-5" />
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
         <Link
@@ -82,7 +88,7 @@ export default function Review() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-foreground">Review</h1>
+          <h1 className="text-xl font-bold text-foreground">{t('reviewTitle')}</h1>
         </div>
         {total > 0 && !sessionDone && (
           <div className="text-sm text-muted-foreground font-medium bg-secondary px-3 py-1.5 rounded-full">
@@ -121,26 +127,26 @@ export default function Review() {
               {total === 0 ? (
                 <>
                   <h2 className="text-2xl font-bold text-foreground mb-2">
-                    All caught up!
+                    {t('allCaughtUp')}
                   </h2>
                   <p className="text-muted-foreground mb-2">
-                    No words due for review right now.
+                    {t('noWordsDue')}
                   </p>
                   <p className="text-sm text-muted-foreground mb-8">
-                    Add new words or check back later.
+                    {t('addOrLater')}
                   </p>
                 </>
               ) : (
                 <>
                   <h2 className="text-2xl font-bold text-foreground mb-2">
-                    Session complete!
+                    {t('sessionComplete')}
                   </h2>
                   <p className="text-muted-foreground mb-1">
-                    {correct} of {total} correct
+                    {t('correctOfTotal', correct, total)}
                   </p>
                   {streak > 0 && (
                     <p className="text-sm text-primary font-medium mb-8">
-                      🔥 {streak} day streak
+                      {t('streakFire', streak)}
                     </p>
                   )}
                 </>
@@ -149,7 +155,7 @@ export default function Review() {
                 to="/"
                 className="inline-block bg-primary text-primary-foreground font-semibold px-8 py-3.5 rounded-xl active:scale-95 transition-transform"
               >
-                Back to Home
+                {t('backHome')}
               </Link>
             </motion.div>
           ) : currentWord ? (

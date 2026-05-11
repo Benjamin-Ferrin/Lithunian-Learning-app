@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { Flame } from 'lucide-react';
+import { useLocale } from '@/lib/LocaleContext';
 
 export default function StreakCounter({ streak, reviewedToday }) {
+  const { t } = useLocale();
   return (
     <motion.div
       initial={{ scale: 0.9, opacity: 0 }}
@@ -35,7 +37,7 @@ export default function StreakCounter({ streak, reviewedToday }) {
           {streak}
         </motion.p>
         <p className="text-base text-muted-foreground mt-1 font-medium">
-          {streak === 1 ? 'day streak' : 'day streak'}
+          {t('streakLabel')}
         </p>
       </div>
 
@@ -45,7 +47,7 @@ export default function StreakCounter({ streak, reviewedToday }) {
           animate={{ opacity: 1, y: 0 }}
           className="text-sm text-primary font-medium bg-primary/10 px-4 py-1.5 rounded-full"
         >
-          Done for today ✓
+          {t('doneToday')}
         </motion.p>
       )}
     </motion.div>

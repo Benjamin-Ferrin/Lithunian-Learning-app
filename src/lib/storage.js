@@ -1,3 +1,5 @@
+import { isValidStudyLanguage, STUDY_LT } from '@/lib/learningLanguages';
+
 // Simple localStorage wrapper for offline-first data
 
 const WORDS_KEY = 'lt_words';
@@ -44,13 +46,21 @@ export function getWords() {
   return raw ? JSON.parse(raw) : [];
 }
 
-export function saveWord(lithuanian, english) {
+function wordLanguage(w) {
+  const raw = w.language || STUDY_LT;
+  return isValidStudyLanguage(raw) ? raw : STUDY_LT;
+}
+
+export function saveWord(lithuanian, english, language = STUDY_LT) {
   const words = getWords();
+  const lang = isValidStudyLanguage(language) ? language : STUDY_LT;
   const newWord = {
     id: Date.now().toString(),
     lithuanian: lithuanian.trim(),
     english: english.trim(),
-    level: 0, // 0 = new, higher = more known
+    language: lang,
+    level: 0, // legacy display / migration
+    knowCount: 0,
     nextReview: getToday(),
     created: getToday(),
   };
@@ -74,30 +84,44 @@ export function deleteWord(id) {
   localStorage.setItem(WORDS_KEY, JSON.stringify(words));
 }
 
-// --- Spaced Repetition ---
-export function getReviewWords() {
-  const today = getToday();
-  const words = getWords();
-  return words.filter(w => w.nextReview <= today);
+// --- Review queue (all words stay in rotation; order by know-count + jitter) ---
+const SORT_JITTER = 0.45;
+
+export function getWordsForStudyLanguage(language) {
+  return getWords().filter((w) => wordLanguage(w) === language);
+}
+
+export function getReviewWords(language) {
+  const words = language ? getWordsForStudyLanguage(language) : getWords();
+  if (words.length === 0) return [];
+  return words
+    .map(w => ({
+      w,
+      score: (w.knowCount || 0) + (Math.random() - 0.5) * SORT_JITTER,
+    }))
+    .sort((a, b) => a.score - b.score)
+    .map(x => x.w);
 }
 
 export function markCorrect(id) {
   const words = getWords();
   const word = words.find(w => w.id === id);
   if (!word) return;
-  const newLevel = Math.min(word.level + 1, 5);
-  const daysUntilNext = [1, 2, 4, 7, 14, 30][newLevel];
-  const next = new Date();
-  next.setDate(next.getDate() + daysUntilNext);
+  const knowCount = (word.knowCount || 0) + 1;
   updateWord(id, {
-    level: newLevel,
-    nextReview: next.toISOString().split('T')[0],
+    knowCount,
+    nextReview: getToday(),
   });
 }
 
 export function markIncorrect(id) {
+  const words = getWords();
+  const word = words.find(w => w.id === id);
+  if (!word) return;
+  const knowCount = Math.max(0, (word.knowCount || 0) - 1);
   updateWord(id, {
     level: 0,
+    knowCount,
     nextReview: getToday(),
   });
 }
@@ -149,13 +173,14 @@ export function initTheme() {
 }
 
 // --- Stats ---
-export function getStats() {
-  const words = getWords();
+export function getStats(language) {
+  const words = language ? getWordsForStudyLanguage(language) : getWords();
+  const knows = w => w.knowCount || 0;
   return {
     totalWords: words.length,
-    mastered: words.filter(w => w.level >= 4).length,
-    learning: words.filter(w => w.level > 0 && w.level < 4).length,
-    newWords: words.filter(w => w.level === 0).length,
+    mastered: words.filter(w => knows(w) >= 6).length,
+    learning: words.filter(w => knows(w) > 0 && knows(w) < 6).length,
+    newWords: words.filter(w => knows(w) === 0).length,
     streak: getStreak(),
     lastActive: getLastActive(),
   };
