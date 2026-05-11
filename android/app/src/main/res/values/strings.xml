@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Lithuanian Learning</string>
+    <string name="title_activity_main">Lithuanian Learning</string>
+    <string name="package_name">com.app.lithuanianlearning</string>
+    <string name="custom_url_scheme">com.app.lithuanianlearning</string>
+</resources>
