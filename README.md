@@ -19,7 +19,7 @@ Install the APK on your phone to use the native Android app.
 
 ## Installation Steps (Android)
 
-1. Download the APK file to your phone.
+1. Download the app.APK file to your phone.
 2. Open the downloaded file (usually in your **Downloads** folder).
 3. If prompted, enable **Install from unknown sources** in your device settings.
 4. Tap **Install** and wait for it to complete.
