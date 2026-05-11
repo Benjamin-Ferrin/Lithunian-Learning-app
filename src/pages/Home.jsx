@@ -5,7 +5,6 @@ import { BookOpen, Plus, Library } from 'lucide-react';
 import StreakCounter from '@/components/StreakCounter';
 import ThemeToggle from '@/components/ThemeToggle';
 import { getStreak, hasReviewedToday, getStats, getReviewWords, initTheme } from '@/lib/storage';
-import { seedIfNeeded } from '@/lib/seedWords';
 
 export default function Home() {
   const [streak, setStreak] = useState(0);
@@ -15,7 +14,6 @@ export default function Home() {
 
   useEffect(() => {
     initTheme();
-    seedIfNeeded();
     setStreak(getStreak());
     setReviewedToday(hasReviewedToday());
     setStats(getStats());
